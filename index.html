@@ -951,49 +951,24 @@
     // 3. SINKRONISASI MASTER DATA DARI SPREADSHEET (PENULIS, PENELAAH, KOMPETENSI, INDIKATOR)
     // =========================================================================
     function muatMasterDataSpreadsheet(tampilNotif = false) {
-        // Jika dipanggil dari tombol topbar sync, berikan animasi mutar pada ikon
-        const btnSync = event ? event.currentTarget : null;
-        let iconOriginal = "";
-        if (btnSync) {
-            iconOriginal = btnSync.innerHTML;
-            btnSync.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Syncing...`;
-            btnSync.disabled = true;
-        }
+        const badgeSync = document.getElementById("statusSyncMaster");
+        if (badgeSync) badgeSync.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Sinkronisasi data master dari Spreadsheet...`;
 
         fetch(scriptURL + "?action=get_master_data")
         .then(r => r.json())
         .then(res => {
-            if (btnSync) {
-                btnSync.innerHTML = iconOriginal;
-                btnSync.disabled = false;
-            }
             if (res && res.status === "success") {
                 terapkanMasterData(res);
-                
-                // Refresh data radar aktif di Portal Penelaah tanpa mereset pilihan wilayah/mapel
-                if (document.getElementById("portalPenelaah") && document.getElementById("portalPenelaah").style.display !== "none") {
-                    if (typeof penelaah_muatDashboardRadar === "function") {
-                        penelaah_muatDashboardRadar();
-                    }
-                }
-                // Refresh radar aktif di Portal Penulis
-                else if (document.getElementById("portalPenulis") && document.getElementById("portalPenulis").style.display !== "none") {
-                    if (typeof penulis_cekStatusKu === "function") {
-                        penulis_cekStatusKu();
-                    }
-                }
-
-                if (tampilNotif) {
-                    alert("✅ Database & Status Soal berhasil disinkronkan ulang tanpa mengubah pilihan Anda!");
-                }
+                if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-cloud-check-fill text-success"></i> Data Master Spreadsheet Aktif & Tersinkronisasi`;
+                if (tampilNotif) alert("Data Master (Penulis, Penelaah, Pengawas, Pencetak, Kompetensi & Indikator) berhasil diperbarui dari Spreadsheet!");
+            } else {
+                if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-check-circle-fill"></i> Siap digunakan (Mode Data Terpadu)`;
             }
+            sesuaikanFormLogin();
         })
-        .catch(err => {
-            if (btnSync) {
-                btnSync.innerHTML = iconOriginal;
-                btnSync.disabled = false;
-            }
-            if (tampilNotif) alert("Gagal menyinkronkan database: " + err.message);
+        .catch(() => {
+            if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-check-circle-fill"></i> Siap digunakan (Mode Data Lokal & Cloud)`;
+            sesuaikanFormLogin();
         });
     }
 
@@ -1097,7 +1072,6 @@
         } else if (session.role === "PENELAAH") {
             document.getElementById("portalPenelaah").style.display = "block";
             initPortalPenelaah(session.username);
-            setTimeout(muatStatePenelaahDariLokal, 300); // Memulihkan posisi tampilan terakhir
         } else if (session.role === "PENGAWAS") {
             document.getElementById("portalPengawas").style.display = "block";
         } else if (session.role === "PENCETAK") {
@@ -1251,63 +1225,55 @@
 
         selWil.onchange = function() {
             const w = this.value;
-            const mapelLama = selMapel.value;
-            selKec.innerHTML = '<option value="SEMUA">🌟 SEMUA KECAMATAN (1 Wilayah)</option>';
+            selKec.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            selMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+            selNama.innerHTML = '<option value="">-- Pilih Nama Penulis --</option>';
             selKec.disabled = !w;
-            selMapel.disabled = !w;
-
-            document.getElementById("penelaah_boxPenilaian").style.display = "none";
-            document.getElementById("penelaah_areaListPaket").style.display = "none";
-
+            selMapel.disabled = true;
+            selNama.disabled = true;
             if (w && dataSurabaya[w]) {
                 Object.keys(dataSurabaya[w]).forEach(k => {
                     selKec.innerHTML += `<option value="${k}">${k}</option>`;
                 });
-                selKec.value = "SEMUA";
-                if (mapelLama) selMapel.value = mapelLama;
-                if (!selPaket.value) selPaket.value = "Paket 1";
-
-                penelaah_isiDropdownNamaPenelaah(w, loggedUsername, selMapel.value);
-                if (selMapel.value) penelaah_muatDashboardRadar();
-            } else {
-                document.getElementById("penelaah_panelMonitoring").style.display = "none";
+                penulis_tampilkanDaftarPenelaahWilayah(w);
             }
-            simpanStatePenelaahKeLokal();
         };
 
         selKec.onchange = function() {
-            document.getElementById("penelaah_boxPenilaian").style.display = "none";
-            document.getElementById("penelaah_areaListPaket").style.display = "none";
-            if (selWil.value && selMapel.value) {
-                penelaah_muatDashboardRadar();
+            const w = selWil.value;
+            const k = this.value;
+            selMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+            selNama.innerHTML = '<option value="">-- Pilih Nama Penulis --</option>';
+            selMapel.disabled = !k;
+            selNama.disabled = true;
+            if (w && k && dataSurabaya[w][k]) {
+                dataSurabaya[w][k].forEach(m => {
+                    selMapel.innerHTML += `<option value="${m}">${m}</option>`;
+                });
             }
-            simpanStatePenelaahKeLokal();
         };
 
         selMapel.onchange = function() {
-            document.getElementById("penelaah_boxPenilaian").style.display = "none";
-            document.getElementById("penelaah_areaListPaket").style.display = "none";
-            if (!selPaket.value) selPaket.value = "Paket 1";
-            penelaah_isiDropdownNamaPenelaah(selWil.value, loggedUsername, this.value);
-            penelaah_muatDashboardRadar();
-            simpanStatePenelaahKeLokal();
-        };
-
-        selPaket.onchange = function() {
-            document.getElementById("penelaah_boxPenilaian").style.display = "none";
-            penelaah_muatDashboardRadar();
-            if (document.getElementById("penelaah_areaListPaket").style.display !== "none") {
-                penelaah_tarikSatuPaket();
+            const k = selKec.value;
+            const m = this.value;
+            selNama.innerHTML = '<option value="">-- Pilih Nama Penulis --</option>';
+            selNama.disabled = !m;
+            if (k && m) {
+                const key = `${k}_${m}`;
+                const listGuru = dataPenulis[key] || [];
+                listGuru.forEach(g => {
+                    selNama.innerHTML += `<option value="${g}">${g}</option>`;
+                });
+                penulis_tampilkanDaftarPenelaahWilayah(selWil.value, m);
+                penulis_cekStatusKu();
             }
-            simpanStatePenelaahKeLokal();
         };
 
-        const selNamaPenelaah = document.getElementById("penelaah_namaPenelaah");
-        if (selNamaPenelaah) {
-            selNamaPenelaah.onchange = function() {
-                simpanStatePenelaahKeLokal();
-            };
-        }
+        selNama.onchange = function() {
+            penulis_tampilkanJatahSoalPenulis();
+            penulis_cekStatusKu();
+            penulis_updateDropdownNomorSoal();
+        };
 
         // Isi awal dropdown nomor 1 - 30
         penulis_updateDropdownNomorSoal();
@@ -1982,38 +1948,6 @@
             e.preventDefault();
             penelaah_rakitDokumenFinal();
         };
-    }
-
-function simpanStatePenelaahKeLokal() {
-        const state = {
-            wilayah: document.getElementById("penelaah_wilayah").value,
-            kecamatan: document.getElementById("penelaah_kecamatan").value,
-            mapel: document.getElementById("penelaah_mapel").value,
-            paket: document.getElementById("penelaah_paket").value,
-            nama: document.getElementById("penelaah_namaPenelaah").value
-        };
-        localStorage.setItem("tka_penelaah_state_2026", JSON.stringify(state));
-    }
-
-    function muatStatePenelaahDariLokal() {
-        const saved = localStorage.getItem("tka_penelaah_state_2026");
-        if (!saved) return;
-        try {
-            const st = JSON.parse(saved);
-            const selWil = document.getElementById("penelaah_wilayah");
-            if (st.wilayah && selWil.querySelector(`option[value="${st.wilayah}"]`)) {
-                selWil.value = st.wilayah;
-                selWil.onchange();
-                if (st.kecamatan) document.getElementById("penelaah_kecamatan").value = st.kecamatan;
-                if (st.mapel) {
-                    document.getElementById("penelaah_mapel").value = st.mapel;
-                    document.getElementById("penelaah_mapel").onchange();
-                }
-                if (st.paket) document.getElementById("penelaah_paket").value = st.paket;
-                if (st.nama) document.getElementById("penelaah_namaPenelaah").value = st.nama;
-                if (st.wilayah && st.mapel) penelaah_muatDashboardRadar();
-            }
-        } catch(e) {}
     }
 
     function penelaah_isiDropdownNamaPenelaah(wilayah, loggedUsername = "", mapel = "") {
