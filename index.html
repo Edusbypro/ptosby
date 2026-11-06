@@ -336,14 +336,14 @@
         <div class="col-md-7 col-lg-5">
             <div class="glass-card p-4 p-md-5 text-center">
                 <img src="" alt="Logo Kota Surabaya" class="logo-surabaya logo-surabaya-render">
-                <h4 class="fw-bold text-dark mb-1">Portal Terpadu TKA SD</h4>
+                <h4 class="fw-bold text-dark mb-1">Portal Terpadu Penulisan Soal TO TKA SD</h4>
                 <p class="text-muted small mb-4">Penyusunan, Telaah, Pengawasan & Pencetakan Soal<br>Kota Surabaya Tahun Ajaran 2026/2027</p>
 
                 <div id="statusSyncMaster" class="alert alert-info py-2 small mb-3 border-0 shadow-sm" style="background: rgba(224, 242, 254, 0.85); color: #0369a1;">
                     <i class="bi bi-cloud-check-fill"></i> Terhubung ke Database Spreadsheet
                 </div>
 
-                <form id="formLoginPortal" onsubmit="prosesLoginPortal(event)" class="text-start">
+                <form id="formLoginPortal" onsubmit="prosesLoginPortal(event)" class="text-start" autocomplete="off">
                     <div class="mb-3">
                         <label class="form-label small text-uppercase text-secondary">1. Pilih Akses Portal</label>
                         <select id="loginRole" class="form-select form-select-lg fw-bold" required onchange="sesuaikanFormLogin()">
@@ -355,17 +355,34 @@
                         </select>
                     </div>
 
+                    <!-- FILTER WILAYAH & KECAMATAN SAAT LOGIN -->
+                    <div class="row g-2 mb-3" id="boxFilterLokasiLogin" style="display: none;">
+                        <div class="col-md-6" id="colLoginWilayah">
+                            <label class="form-label small text-uppercase text-secondary">Wilayah</label>
+                            <select id="loginWilayah" class="form-select" onchange="login_ubahWilayah()">
+                                <option value="">-- Pilih Wilayah --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="colLoginKecamatan">
+                            <label class="form-label small text-uppercase text-secondary">Kecamatan</label>
+                            <select id="loginKecamatan" class="form-select" onchange="login_ubahKecamatan()" disabled>
+                                <option value="">-- Pilih Kecamatan --</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label small text-uppercase text-secondary">2. Nama Pengguna / Username</label>
-                        <input type="text" id="loginUsername" class="form-control form-control-lg" list="listNamaUserLogin" placeholder="Ketik atau pilih nama Anda..." required>
-                        <datalist id="listNamaUserLogin"></datalist>
+                        <select id="loginUsername" class="form-select form-select-lg" required disabled>
+                            <option value="">-- Pilih Portal Terlebih Dahulu --</option>
+                        </select>
                         <div class="form-text small text-muted">Nama Anda akan tersimpan otomatis selama belum menekan tombol Keluar.</div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label small text-uppercase text-secondary">3. PIN Keamanan Portal</label>
                         <div class="input-group input-group-lg">
-                            <input type="password" id="loginPin" class="form-control fw-bold letter-spacing-2" placeholder="Masukkan 6 Digit PIN" required>
+                            <input type="password" id="loginPin" class="form-control fw-bold letter-spacing-2" placeholder="Masukkan 6 Digit PIN" autocomplete="new-password" required>
                             <button class="btn btn-outline-secondary bg-white" type="button" onclick="toggleLihatPin()" title="Tampilkan / Sembunyikan PIN">
                                 <i class="bi bi-eye-fill" id="iconMataPin"></i>
                             </button>
@@ -391,16 +408,16 @@
         <p class="header-subtitle">Kota Surabaya Tahun Ajaran 2026/2027</p>
     </div>
 
-    <!-- PANEL MONITORING RADAR 5 PAKET & INFO PENELAAH -->
+    <!-- PANEL MONITORING RADAR 5 PAKET (GABUNGAN 5 WILAYAH) & INFO PENELAAH -->
     <div class="glass-card p-4 mb-4" id="penulis_panelMonitoring" style="display: none;">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-2">
-            <h5 class="fw-bold text-primary mb-0"><i class="bi bi-bell-fill"></i> Notifikasi & Status Soal (5 Paket)</h5>
+            <h5 class="fw-bold text-primary mb-0"><i class="bi bi-bell-fill"></i> Radar Status Soal (Paket 1 - 5 Lintas 5 Wilayah)</h5>
             <span class="badge bg-info text-dark px-3 py-2" id="penulis_badgeInfoPenelaah">Tim Penelaah Wilayah</span>
         </div>
 
         <!-- KOTAK DAFTAR NAMA PENELAAH WILAYAH -->
         <div class="alert alert-primary py-2 px-3 small mb-3 border-0 shadow-sm" style="background: rgba(224, 231, 255, 0.75);">
-            <i class="bi bi-person-check-fill text-primary"></i> <b>Tim Penelaah Wilayah Ini:</b>
+            <i class="bi bi-person-check-fill text-primary"></i> <b>Tim Penelaah Wilayah Anda:</b>
             <span id="penulis_daftarPenelaahWilayah" class="fw-bold text-dark ms-1">-</span>
         </div>
 
@@ -411,9 +428,9 @@
             <span class="bg-pink"></span> Reviu Penelaah &nbsp;&nbsp;
             <span class="bg-rejected"></span> Ditolak &nbsp;&nbsp;
             <span class="bg-resubmitted"></span> Dikirim Ulang &nbsp;&nbsp;
-            <span class="badge-none"></span> Kosong &nbsp;&nbsp;
-            <br><i class="bi bi-lock-fill text-muted mt-2 d-inline-block"></i> <b>Ikon Gembok:</b> Soal terkunci (Sudah diklaim penulis lain / Sedang direviu Penelaah).
-            <br><em class="text-danger fw-bold">*Pilih nama Anda di bawah agar gembok terbuka pada soal milik Anda!</em>
+            <span class="badge-none"></span> Kosong (Bisa Diisi) &nbsp;&nbsp;
+            <br><i class="bi bi-lock-fill text-muted mt-2 d-inline-block"></i> <b>Aturan Baru (1 Paket = 5 Wilayah):</b> Anda bebas memilih dan membuat soal di <b>Paket 1 s.d. Paket 5</b> selama nomor soal tersebut masih <b>Kosong</b> (belum diklaim penulis lain dari wilayah mana pun).
+            <br><em class="text-danger fw-bold">*Pilih nama Anda di bawah agar gembok terbuka pada soal milik Anda di Paket 1 s.d. Paket 5!</em>
         </div>
         <div id="penulis_infoStatus"></div>
     </div>
@@ -545,11 +562,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" id="penelaah_btnTampilkan" class="btn btn-success btn-lg fw-bold shadow-sm" style="border-radius: 12px;">
-                        <i class="bi bi-file-earmark-word"></i> RAKIT DOKUMEN DOCS FINAL
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -655,6 +667,7 @@
         <div class="row g-4">
             <div class="col-md-4">
                 <h6 class="fw-bold text-secondary text-uppercase mb-3"><i class="bi bi-geo-alt-fill text-primary"></i> 1. Pilih Wilayah</h6>
+				<button class="btn-check-custom pengawas-btn-wilayah border-primary text-primary" onclick="pengawas_setWilayah(this, 'SEMUA')">🌐 Gabungan 5 Wilayah (1 Paket Utuh)</button>
                 <button class="btn-check-custom pengawas-btn-wilayah" onclick="pengawas_setWilayah(this, 'Surabaya Barat')">Surabaya Barat</button>
                 <button class="btn-check-custom pengawas-btn-wilayah" onclick="pengawas_setWilayah(this, 'Surabaya Pusat')">Surabaya Pusat</button>
                 <button class="btn-check-custom pengawas-btn-wilayah" onclick="pengawas_setWilayah(this, 'Surabaya Selatan')">Surabaya Selatan</button>
@@ -831,7 +844,17 @@
           </div>
           
           <div id="modal_panelMatematika" class="bg-white p-3 rounded border mb-4 shadow-sm" style="display:none;">
-              <label class="text-secondary small fw-bold mb-2"><i class="bi bi-calculator"></i> Bantuan Simbol Matematika & Bangun Ruang:</label>
+              <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                  <label class="text-secondary small fw-bold mb-0"><i class="bi bi-calculator"></i> Bantuan Simbol Matematika & Equation:</label>
+                  <div class="d-flex flex-wrap gap-2">
+                      <a href="https://fxeditor.codecogs.com/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary fw-bold rounded-pill px-3">
+                          <i class="bi bi-box-arrow-up-right"></i> Buka CodeCogs FX Editor
+                      </a>
+                      <button type="button" class="btn btn-sm btn-warning fw-bold text-dark rounded-pill px-3" onclick="bukaPanduanCodecogs()">
+                          <i class="bi bi-question-circle-fill"></i> Cara Pakai Equation
+                      </button>
+                  </div>
+              </div>
               <div class="d-flex flex-wrap gap-1 mb-2">
                   <script>
                       ['×', '÷', '±', '≠', '≈', '≤', '≥', '√', '∛', 'π', '°', '∆', '∠', '⊥', '½', '⅓', '¼', '¾', 'α', 'β', 'θ', '∞', 'µ'].forEach(sym => {
@@ -895,8 +918,55 @@
   </div>
 </div>
 
+<!-- ==================================================================== -->
+<!-- MODAL POP-UP PANDUAN EQUATION CODECUGS (MATEMATIKA)                  -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="modalPanduanCodecogs" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-calculator-fill me-1"></i> Panduan Membuat Rumus / Equation Matematika (CodeCogs)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="alert alert-info border-0 shadow-sm small mb-3">
+          <i class="bi bi-info-circle-fill me-1"></i> Gunakan web <b>CodeCogs FX Editor</b> untuk membuat pecahan bersusun, akar kuadrat kompleks, pangkat, atau persamaan matematika agar tampil rapi saat dicetak ke Google Docs.
+        </div>
+
+        <div class="bg-white p-3 rounded-3 border shadow-sm mb-3">
+          <h6 class="fw-bold text-primary mb-2">Cara 1: Copy-Paste Langsung ke Kotak Soal (Paling Cepat)</h6>
+          <ol class="small mb-0 ps-3">
+            <li class="mb-2">Klik tombol <b>Buka Pembuat Rumus (CodeCogs FX Editor)</b> atau buka <a href="https://fxeditor.codecogs.com/" target="_blank" class="fw-bold">https://fxeditor.codecogs.com/</a>.</li>
+            <li class="mb-2">Ketik rumus matematika menggunakan tombol-tombol pecahan/akar di bagian atas web tersebut.</li>
+            <li class="mb-2">Lihat hasil gambar rumus yang muncul di kotak pratinjau bagian bawah, lalu <b>Klik Kanan pada gambar rumus tersebut</b> dan pilih <b>Copy Image (Salin Gambar)</b>.</li>
+            <li class="mb-0">Kembali ke halaman Portal Soal ini, klik di dalam kotak Pertanyaan/Opsi/Pembahasan, lalu tekan <b>Ctrl + V (Paste)</b> di keyboard Anda.</li>
+          </ol>
+        </div>
+
+        <div class="bg-white p-3 rounded-3 border shadow-sm mb-3">
+          <h6 class="fw-bold text-success mb-2">Cara 2: Download Gambar Rumus (Jika Menggunakan HP/Tablet)</h6>
+          <ol class="small mb-0 ps-3">
+            <li class="mb-1">Setelah selesai mengetik rumus di web CodeCogs, klik tombol <b>Download</b> (pilih format <b>PNG</b> atau <b>GIF</b>) atau klik kanan pilih <b>Save image as...</b></li>
+            <li class="mb-0">Di halaman Portal Soal, klik tombol <b><i class="bi bi-image"></i> Sisip Gambar</b> di atas kotak soal/opsi, lalu pilih file gambar rumus yang baru saja diunduh.</li>
+          </ol>
+        </div>
+
+        <div class="text-end">
+          <a href="https://fxeditor.codecogs.com/" target="_blank" rel="noopener noreferrer" class="btn btn-primary fw-bold px-4 rounded-pill">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Buka Web CodeCogs Sekarang
+          </a>
+          <button type="button" class="btn btn-secondary fw-bold px-4 rounded-pill ms-2" data-bs-dismiss="modal">Tutup Panduan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    function bukaPanduanCodecogs() {
+        new bootstrap.Modal(document.getElementById("modalPanduanCodecogs")).show();
+    }
     // =========================================================================
     // 1. KONFIGURASI LINK GOOGLE APPS SCRIPT, PIN PORTAL & LOGO SURABAYA BASE64
     // =========================================================================
@@ -952,15 +1022,15 @@
     // =========================================================================
     function muatMasterDataSpreadsheet(tampilNotif = false) {
         const badgeSync = document.getElementById("statusSyncMaster");
-        if (badgeSync) badgeSync.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Sinkronisasi data master dari Spreadsheet...`;
+        if (badgeSync) badgeSync.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Sinkronisasi data master dari Database...`;
 
         fetch(scriptURL + "?action=get_master_data")
         .then(r => r.json())
         .then(res => {
             if (res && res.status === "success") {
                 terapkanMasterData(res);
-                if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-cloud-check-fill text-success"></i> Data Master Spreadsheet Aktif & Tersinkronisasi`;
-                if (tampilNotif) alert("Data Master (Penulis, Penelaah, Pengawas, Pencetak, Kompetensi & Indikator) berhasil diperbarui dari Spreadsheet!");
+                if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-cloud-check-fill text-success"></i> Data Master Database Aktif & Tersinkronisasi`;
+                if (tampilNotif) alert("Data Master (Penulis, Penelaah, Pengawas, Pencetak, Kompetensi & Indikator) berhasil diperbarui dari Database!");
             } else {
                 if (badgeSync) badgeSync.innerHTML = `<i class="bi bi-check-circle-fill"></i> Siap digunakan (Mode Data Terpadu)`;
             }
@@ -1005,37 +1075,124 @@
 
     function sesuaikanFormLogin() {
         const role = document.getElementById("loginRole").value;
-        const datalist = document.getElementById("listNamaUserLogin");
-        if (!datalist) return;
-        datalist.innerHTML = "";
+        const boxLokasi = document.getElementById("boxFilterLokasiLogin");
+        const colWil = document.getElementById("colLoginWilayah");
+        const colKec = document.getElementById("colLoginKecamatan");
+        const selWil = document.getElementById("loginWilayah");
+        const selKec = document.getElementById("loginKecamatan");
+        const selUser = document.getElementById("loginUsername");
 
-        let kandidatNama = [];
-        if (role === "PENULIS") {
-            for (let k in dataPenulis) {
-                if (Array.isArray(dataPenulis[k])) kandidatNama.push(...dataPenulis[k]);
-            }
-        } else if (role === "PENELAAH") {
-            for (let w in dataPenelaahWilayah) {
-                const item = dataPenelaahWilayah[w];
-                if (Array.isArray(item)) kandidatNama.push(...item);
-                else if (typeof item === "object") {
-                    for (let m in item) if (Array.isArray(item[m])) kandidatNama.push(...item[m]);
-                }
-            }
-        } else if (role === "PENGAWAS") {
-            kandidatNama = dataPengawasList;
-        } else if (role === "PENCETAK") {
-            kandidatNama = dataPencetakList;
+        if (!selUser) return;
+
+        // Isi daftar Wilayah
+        const wilayahLama = selWil.value;
+        selWil.innerHTML = '<option value="">-- Pilih Wilayah --</option>';
+        Object.keys(dataSurabaya).forEach(w => {
+            selWil.innerHTML += `<option value="${w}">${w}</option>`;
+        });
+        if (wilayahLama && dataSurabaya[wilayahLama]) selWil.value = wilayahLama;
+
+        if (!role) {
+            boxLokasi.style.display = "none";
+            selUser.innerHTML = '<option value="">-- Pilih Portal Terlebih Dahulu --</option>';
+            selUser.disabled = true;
+            return;
         }
 
-        [...new Set(kandidatNama)].forEach(nama => {
-            datalist.innerHTML += `<option value="${nama}">`;
+        if (role === "PENULIS") {
+            boxLokasi.style.display = "flex";
+            colWil.className = "col-md-6";
+            colKec.style.display = "block";
+            selKec.disabled = !selWil.value;
+            selUser.innerHTML = '<option value="">-- Pilih Wilayah & Kecamatan Dahulu --</option>';
+            selUser.disabled = true;
+            if (selWil.value) login_ubahWilayah();
+        } else if (role === "PENELAAH") {
+            boxLokasi.style.display = "flex";
+            colWil.className = "col-md-12";
+            colKec.style.display = "none";
+            selUser.innerHTML = '<option value="">-- Pilih Wilayah Dahulu --</option>';
+            selUser.disabled = true;
+            if (selWil.value) login_ubahWilayah();
+        } else if (role === "PENGAWAS") {
+            boxLokasi.style.display = "none";
+            selUser.disabled = false;
+            selUser.innerHTML = '<option value="">-- Pilih Nama Pengawas --</option>';
+            const list = (dataPengawasList && dataPengawasList.length > 0) ? dataPengawasList : ["Tim Pengawas Kota Surabaya"];
+            [...new Set(list)].forEach(n => {
+                selUser.innerHTML += `<option value="${n}">${n}</option>`;
+            });
+        } else if (role === "PENCETAK") {
+            boxLokasi.style.display = "none";
+            selUser.disabled = false;
+            selUser.innerHTML = '<option value="">-- Pilih Nama Pencetak --</option>';
+            const list = (dataPencetakList && dataPencetakList.length > 0) ? dataPencetakList : ["Tim Pencetak Naskah TKA"];
+            [...new Set(list)].forEach(n => {
+                selUser.innerHTML += `<option value="${n}">${n}</option>`;
+            });
+        }
+    }
+
+    function login_ubahWilayah() {
+        const role = document.getElementById("loginRole").value;
+        const wil = document.getElementById("loginWilayah").value;
+        const selKec = document.getElementById("loginKecamatan");
+        const selUser = document.getElementById("loginUsername");
+
+        if (role === "PENULIS") {
+            selKec.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            selKec.disabled = !wil;
+            selUser.innerHTML = '<option value="">-- Pilih Kecamatan Dahulu --</option>';
+            selUser.disabled = true;
+
+            if (wil && dataSurabaya[wil]) {
+                Object.keys(dataSurabaya[wil]).forEach(k => {
+                    selKec.innerHTML += `<option value="${k}">${k}</option>`;
+                });
+            }
+        } else if (role === "PENELAAH") {
+            selUser.innerHTML = '<option value="">-- Pilih Nama Penelaah --</option>';
+            selUser.disabled = !wil;
+            if (!wil) return;
+
+            let kandidat = [];
+            const item = dataPenelaahWilayah[wil];
+            if (Array.isArray(item)) kandidat.push(...item);
+            else if (item && typeof item === "object") {
+                for (let m in item) if (Array.isArray(item[m])) kandidat.push(...item[m]);
+            }
+
+            [...new Set(kandidat)].forEach(nama => {
+                selUser.innerHTML += `<option value="${nama}">${nama}</option>`;
+            });
+        }
+    }
+
+    function login_ubahKecamatan() {
+        const kec = document.getElementById("loginKecamatan").value;
+        const selUser = document.getElementById("loginUsername");
+
+        selUser.innerHTML = '<option value="">-- Pilih Nama Penulis --</option>';
+        selUser.disabled = !kec;
+        if (!kec) return;
+
+        let kandidat = [];
+        for (let key in dataPenulis) {
+            if (key.startsWith(kec + "_") && Array.isArray(dataPenulis[key])) {
+                kandidat.push(...dataPenulis[key]);
+            }
+        }
+
+        [...new Set(kandidat)].forEach(nama => {
+            selUser.innerHTML += `<option value="${nama}">${nama}</option>`;
         });
     }
 
     function prosesLoginPortal(e) {
         e.preventDefault();
         const role = document.getElementById("loginRole").value;
+        const wilayah = document.getElementById("loginWilayah")?.value || "";
+        const kecamatan = document.getElementById("loginKecamatan")?.value || "";
         const username = document.getElementById("loginUsername").value.trim();
         const pin = document.getElementById("loginPin").value.trim();
 
@@ -1047,6 +1204,8 @@
 
         const sessionData = {
             role: role,
+            wilayah: wilayah,
+            kecamatan: kecamatan,
             username: username,
             loginTime: new Date().toISOString()
         };
@@ -1338,15 +1497,15 @@
         const mapData = dataMappingPenulis[keyMap] || dataMappingPenulis[nama];
         if (mapData && mapData.nomor && mapData.nomor.length > 0) {
             boxJatah.style.display = "block";
-            boxJatah.innerHTML = `<i class="bi bi-pin-angle-fill"></i> <b>Penugasan Spreadsheet untuk ${nama}:</b> Nomor Soal <b>${mapData.nomor.join(", ")}</b>`;
+            boxJatah.innerHTML = `<i class="bi bi-pin-angle-fill"></i> <b>Penugasan Spreadsheet untuk ${nama}:</b> Nomor Soal <b>${mapData.nomor.join(", ")}</b> — <em>Anda dapat menulis nomor ini di <b>Paket 1 s.d. Paket 5</b> (atau nomor lain di Paket 1-5 selama belum ditulis penulis lain).</em>`;
         } else {
-            boxJatah.style.display = "none";
+            boxJatah.style.display = "block";
+            boxJatah.innerHTML = `<i class="bi bi-info-circle-fill"></i> <b>Mode Lintas Paket (Paket 1 - 5):</b> Anda dapat membuat soal pada <b>Paket 1 s.d. Paket 5</b> di nomor mana pun yang masih berstatus <b>Kosong</b>.`;
         }
     }
 
     function penulis_cekStatusKu() {
         const wil = document.getElementById("penulis_wilayah").value;
-        const kec = document.getElementById("penulis_kecamatan").value;
         const mapel = document.getElementById("penulis_mapel").value;
         const namaPenulis = document.getElementById("penulis_nama").value;
         const panel = document.getElementById("penulis_panelMonitoring");
@@ -1359,12 +1518,39 @@
 
         panel.style.display = "block";
         penulis_tampilkanDaftarPenelaahWilayah(wil, mapel);
-        wadahStatus.innerHTML = `<div class="text-center py-3 text-muted"><span class="spinner-border spinner-border-sm me-2"></span> Memuat radar 5 Paket soal ${wil} (${mapel})...</div>`;
+        wadahStatus.innerHTML = `<div class="text-center py-3 text-muted"><span class="spinner-border spinner-border-sm me-2"></span> Memuat radar 5 Paket (Gabungan 5 Wilayah - ${mapel})...</div>`;
 
-        fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(wil)}&kecamatan=${encodeURIComponent(kec)}&mapel=${encodeURIComponent(mapel)}`)
-        .then(r => r.json())
-        .then(res => {
-            penulis_dataStatusSemuaPaket = res.data || res || {};
+        // Tarik status soal dari 5 Wilayah sekaligus agar 1 Paket berisi gabungan penulis 5 Wilayah
+        const semuaWilayah = Object.keys(dataSurabaya);
+        Promise.all(
+            semuaWilayah.map(w =>
+                fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(w)}&kecamatan=SEMUA&mapel=${encodeURIComponent(mapel)}`)
+                .then(r => r.json())
+                .then(res => ({ wilayah: w, data: res.data || res || {} }))
+                .catch(() => ({ wilayah: w, data: {} }))
+            )
+        )
+        .then(hasilSemuaWilayah => {
+            const gabunganRadar = {};
+            DAFTAR_PAKET.forEach(pkt => { gabunganRadar[pkt] = {}; });
+
+            hasilSemuaWilayah.forEach(itemWil => {
+                const namaWil = itemWil.wilayah;
+                const dataPerWil = itemWil.data || {};
+                DAFTAR_PAKET.forEach(pkt => {
+                    const dataPkt = dataPerWil[pkt] || {};
+                    for (let no = 1; no <= 30; no++) {
+                        const info = dataPkt[no] || dataPkt[String(no)];
+                        if (info && info.status) {
+                            gabunganRadar[pkt][no] = Object.assign({}, info, {
+                                wilayah: info.wilayah || namaWil
+                            });
+                        }
+                    }
+                });
+            });
+
+            penulis_dataStatusSemuaPaket = gabunganRadar;
             penulis_renderRadar5Paket(namaPenulis);
             penulis_updateDropdownNomorSoal();
         })
@@ -1384,7 +1570,7 @@
 
             html += `<div class="p-3 mb-2 rounded-3 border ${isSelectedPaket}">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold text-dark"><i class="bi bi-folder2-open text-primary me-1"></i> ${pkt}</span>
+                    <span class="fw-bold text-dark"><i class="bi bi-folder2-open text-primary me-1"></i> ${pkt} <small class="text-secondary fw-normal">(Kolaborasi 5 Wilayah)</small></span>
                     <small class="text-muted">${pkt === paketAktif ? '<b>(Paket Sedang Aktif)</b>' : ''}</small>
                 </div>
                 <div>`;
@@ -1393,12 +1579,13 @@
                 const info = dataPaket[no] || dataPaket[String(no)] || null;
                 let kelasBadge = "badge-none";
                 let ikonGembok = "";
-                let tooltip = `Soal No. ${no} (Kosong - Klik untuk mengisi)`;
+                let tooltip = `Soal No. ${no} di ${pkt} (Kosong - Klik untuk menulis di paket ini)`;
                 let bolehKlik = true;
 
                 if (info && info.status) {
                     const st = String(info.status).toLowerCase();
                     const pemilik = info.penulis || info.namaPenulis || "";
+                    const asalWil = info.wilayah || "";
                     const milikSendiri = namaPenulisAktif && pemilik.toLowerCase().trim() === namaPenulisAktif.toLowerCase().trim();
 
                     if (st.includes("approved") || st.includes("diterima")) kelasBadge = "bg-approved";
@@ -1408,25 +1595,24 @@
                     else if (st.includes("resubmitted") || st.includes("ulang")) kelasBadge = "bg-resubmitted";
                     else kelasBadge = "bg-menunggu";
 
-                    // PROTEKSI KETAT: Penulis tidak bisa membuka nomor soal yang sudah diklaim orang lain
+                    // PROTEKSI LINTAS 5 WILAYAH: Jika sudah ditulis penulis lain dari wilayah mana pun, kunci!
                     if (!milikSendiri) {
                         ikonGembok = `<i class="bi bi-lock-fill ms-1"></i>`;
-                        tooltip = `TERKUNCI: Soal No. ${no} sudah diklaim oleh penulis lain`;
+                        tooltip = `TERKUNCI: Soal No. ${no} (${pkt}) sudah ditulis oleh penulis lain (${asalWil || 'Lintas Wilayah'})`;
                         bolehKlik = false;
                     } else {
-                        // Jika milik sendiri tetapi sudah Approved, kunci agar tidak berubah tanpa izin
                         if (st.includes("approved")) {
                             ikonGembok = `<i class="bi bi-check2-circle ms-1"></i>`;
-                            tooltip = `Soal Anda No. ${no} (Sudah Disetujui Penelaah)`;
+                            tooltip = `Soal Anda No. ${no} di ${pkt} (Sudah Disetujui Penelaah)`;
                         } else {
-                            tooltip = `Soal Anda No. ${no} (${info.status}) - Klik untuk memuat`;
+                            tooltip = `Soal Anda No. ${no} di ${pkt} (${info.status}) - Klik untuk memuat/mengedit`;
                         }
                     }
                 }
 
                 const aksiKlik = bolehKlik
                     ? `onclick="penulis_pilihNomorDariRadar('${pkt}', ${no})"`
-                    : `onclick="alert('🔒 AKSES DITOLAK!\\nNomor soal ${no} pada ${pkt} sudah diklaim oleh penulis lain. Silakan pilih nomor soal yang masih kosong atau milik Anda sendiri.')"`;
+                    : `onclick="alert('🔒 AKSES DITOLAK!\\nNomor soal ${no} pada ${pkt} sudah ditulis oleh penulis lain (${(info && info.wilayah) ? info.wilayah : 'Lintas Wilayah'}).\\n\\nSilakan pilih nomor lain atau pilih Paket lainnya (Paket 1 s.d. Paket 5) yang masih kosong!')"`;
 
                 html += `<span class="badge-radar ${kelasBadge}" title="${tooltip}" ${aksiKlik}>${no}${ikonGembok}</span>`;
             }
@@ -1439,11 +1625,19 @@
 
     function penulis_pilihNomorDariRadar(paket, no) {
         document.getElementById("penulis_paket").value = paket;
+        penulis_renderRadar5Paket(document.getElementById("penulis_nama").value);
         penulis_updateDropdownNomorSoal();
         const selNo = document.getElementById("penulis_nomorSoal");
         selNo.value = String(no);
         penulis_isiOtomatisKompetensi();
-        penulis_tarikDataSoal();
+
+        // Hanya panggil tarik data ke server jika nomor tersebut sudah pernah diisi oleh penulis ini
+        const info = (penulis_dataStatusSemuaPaket[paket] || {})[no];
+        if (info && info.status) {
+            penulis_tarikDataSoal();
+        } else {
+            document.getElementById("penulis_boxNotifRevisi").style.display = "none";
+        }
     }
 
     function penulis_updateDropdownNomorSoal() {
@@ -1458,14 +1652,15 @@
         for (let i = 1; i <= 30; i++) {
             const info = dataPaket[i] || dataPaket[String(i)];
             let terkunciOrangLain = false;
-            let labelTambahan = "";
+            let labelTambahan = " (Kosong - Bisa Diisi)";
 
             if (info && info.status) {
                 const pemilik = info.penulis || info.namaPenulis || "";
+                const asalWil = info.wilayah ? ` - ${info.wilayah}` : "";
                 const milikSendiri = namaPenulisAktif && pemilik.toLowerCase().trim() === namaPenulisAktif.toLowerCase().trim();
                 if (!milikSendiri) {
                     terkunciOrangLain = true;
-                    labelTambahan = " 🔒 (Sudah Diklaim Penulis Lain)";
+                    labelTambahan = ` 🔒 (Sudah Diisi Penulis Lain${asalWil})`;
                 } else {
                     labelTambahan = ` ✅ (Soal Anda - ${info.status})`;
                 }
@@ -1482,6 +1677,9 @@
 
         if (nilaiLama && !selNo.querySelector(`option[value="${nilaiLama}"]`)?.disabled) {
             selNo.value = nilaiLama;
+        } else {
+            const firstAvailable = selNo.querySelector("option:not([disabled])");
+            if (firstAvailable) selNo.value = firstAvailable.value;
         }
         penulis_isiOtomatisKompetensi();
     }
@@ -1489,28 +1687,29 @@
     function penulis_isiOtomatisKompetensi() {
         const mapel = document.getElementById("penulis_mapel").value;
         const nama = document.getElementById("penulis_nama").value;
+        const paket = document.getElementById("penulis_paket").value || "Paket 1";
         const no = document.getElementById("penulis_nomorSoal").value;
         const elKomp = document.getElementById("penulis_kompetensi");
         const elInd = document.getElementById("penulis_indikator");
 
         if (!mapel || !no) return;
 
-        // Cek terlebih dahulu apakah ada mapping khusus penulis di Spreadsheet
+        // Mendukung pembacaan kisi-kisi per Paket_Nomor maupun per Nomor lintas Paket 1 - 5
         const keyMap = `${nama}_${mapel}`;
         const mapData = dataMappingPenulis[keyMap] || dataMappingPenulis[nama];
 
-        if (mapData && mapData.kompetensi && mapData.kompetensi[no]) {
-            elKomp.value = mapData.kompetensi[no];
-        } else if (dataKompetensi[mapel] && dataKompetensi[mapel][no]) {
-            elKomp.value = dataKompetensi[mapel][no];
+        if (mapData && mapData.kompetensi && (mapData.kompetensi[`${paket}_${no}`] || mapData.kompetensi[no])) {
+            elKomp.value = mapData.kompetensi[`${paket}_${no}`] || mapData.kompetensi[no];
+        } else if (dataKompetensi[mapel] && (dataKompetensi[mapel][`${paket}_${no}`] || dataKompetensi[mapel][no])) {
+            elKomp.value = dataKompetensi[mapel][`${paket}_${no}`] || dataKompetensi[mapel][no];
         } else {
             elKomp.value = "";
         }
 
-        if (mapData && mapData.indikator && mapData.indikator[no]) {
-            elInd.value = mapData.indikator[no];
-        } else if (dataIndikator[mapel] && dataIndikator[mapel][no]) {
-            elInd.value = dataIndikator[mapel][no];
+        if (mapData && mapData.indikator && (mapData.indikator[`${paket}_${no}`] || mapData.indikator[no])) {
+            elInd.value = mapData.indikator[`${paket}_${no}`] || mapData.indikator[no];
+        } else if (dataIndikator[mapel] && (dataIndikator[mapel][`${paket}_${no}`] || dataIndikator[mapel][no])) {
+            elInd.value = dataIndikator[mapel][`${paket}_${no}`] || dataIndikator[mapel][no];
         } else {
             elInd.value = "";
         }
@@ -1536,7 +1735,17 @@
 
             panelMatematikaHTML = `
             <div class="glass-card p-3 mb-4 border-primary">
-                <label class="text-primary small fw-bold mb-2"><i class="bi bi-calculator-fill"></i> Panel Bantuan Simbol Matematika & Bangun Geometri:</label>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                    <label class="text-primary small fw-bold mb-0"><i class="bi bi-calculator-fill"></i> Panel Bantuan Simbol Matematika, Equation & Bangun Geometri:</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="https://fxeditor.codecogs.com/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary fw-bold rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> Buka Pembuat Rumus (CodeCogs FX Editor)
+                        </a>
+                        <button type="button" class="btn btn-sm btn-warning fw-bold text-dark rounded-pill px-3 shadow-sm" onclick="bukaPanduanCodecogs()">
+                            <i class="bi bi-question-circle-fill"></i> Cara Pakai & Paste Equation
+                        </button>
+                    </div>
+                </div>
                 <div class="d-flex flex-wrap gap-1 mb-2">${simbolList}</div>
                 <div class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top">
                     <span class="small fw-bold text-secondary align-self-center me-1">Sisip Cepat Gambar Bangun:</span>
@@ -1803,6 +2012,12 @@
             return alert("Mohon lengkapi seluruh identitas dan spesifikasi soal sebelum menyimpan!");
         }
 
+// Proteksi Lintas 5 Wilayah: Cegah menimpa nomor soal di paket yang sudah diklaim penulis wilayah lain
+        const infoKlaim = (penulis_dataStatusSemuaPaket[paket] || {})[no];
+        if (infoKlaim && infoKlaim.penulis && infoKlaim.penulis.toLowerCase().trim() !== nama.toLowerCase().trim()) {
+            return alert(`🔒 GAGAL MENYIMPAN!\nSoal Nomor ${no} pada ${paket} sudah diklaim oleh penulis lain (${infoKlaim.wilayah || 'Lintas Wilayah'}).\nSilakan pilih Paket atau Nomor Soal lain yang masih kosong!`);
+        }
+
         const kunci = penulis_ambilKunciJawaban();
         if (!kunci) {
             return alert("Anda belum memilih Kunci Jawaban!");
@@ -1878,13 +2093,13 @@
     // =========================================================================
     let penelaah_cacheSoalPaket = {}; // Menyimpan data soal aktif untuk diedit cepat
 
-    function initPortalPenelaah(loggedUsername) {
+function initPortalPenelaah(loggedUsername) {
         const selWil = document.getElementById("penelaah_wilayah");
         const selKec = document.getElementById("penelaah_kecamatan");
         const selMapel = document.getElementById("penelaah_mapel");
         const selPaket = document.getElementById("penelaah_paket");
 
-        selWil.innerHTML = '<option value="">-- Pilih Wilayah --</option>';
+        selWil.innerHTML = '<option value="">-- Pilih Wilayah --</option><option value="SEMUA">🌐 SEMUA WILAYAH (1 Paket Gabungan 5 Wilayah)</option>';
         Object.keys(dataSurabaya).forEach(w => {
             selWil.innerHTML += `<option value="${w}">${w}</option>`;
         });
@@ -1894,22 +2109,24 @@
         selWil.onchange = function() {
             const w = this.value;
             const mapelLama = selMapel.value;
-            selKec.innerHTML = '<option value="SEMUA">🌟 SEMUA KECAMATAN (1 Wilayah)</option>';
-            selKec.disabled = !w;
+            selKec.innerHTML = '<option value="SEMUA">🌟 SEMUA KECAMATAN</option>';
+            selKec.disabled = !w || w === "SEMUA";
             selMapel.disabled = !w;
 
             document.getElementById("penelaah_boxPenilaian").style.display = "none";
             document.getElementById("penelaah_areaListPaket").style.display = "none";
 
-            if (w && dataSurabaya[w]) {
-                Object.keys(dataSurabaya[w]).forEach(k => {
-                    selKec.innerHTML += `<option value="${k}">${k}</option>`;
-                });
+            if (w) {
+                if (w !== "SEMUA" && dataSurabaya[w]) {
+                    Object.keys(dataSurabaya[w]).forEach(k => {
+                        selKec.innerHTML += `<option value="${k}">${k}</option>`;
+                    });
+                }
                 selKec.value = "SEMUA";
                 if (mapelLama) selMapel.value = mapelLama;
                 if (!selPaket.value) selPaket.value = "Paket 1";
 
-                penelaah_isiDropdownNamaPenelaah(w, loggedUsername, selMapel.value);
+                penelaah_isiDropdownNamaPenelaah(w === "SEMUA" ? "" : w, loggedUsername, selMapel.value);
                 if (selMapel.value) penelaah_muatDashboardRadar();
             } else {
                 document.getElementById("penelaah_panelMonitoring").style.display = "none";
@@ -1928,7 +2145,7 @@
             document.getElementById("penelaah_boxPenilaian").style.display = "none";
             document.getElementById("penelaah_areaListPaket").style.display = "none";
             if (!selPaket.value) selPaket.value = "Paket 1";
-            penelaah_isiDropdownNamaPenelaah(selWil.value, loggedUsername, this.value);
+            penelaah_isiDropdownNamaPenelaah(selWil.value === "SEMUA" ? "" : selWil.value, loggedUsername, this.value);
             penelaah_muatDashboardRadar();
         };
 
@@ -1946,7 +2163,6 @@
         const formPenelaah = document.getElementById("formPenelaah");
         formPenelaah.onsubmit = function(e) {
             e.preventDefault();
-            penelaah_rakitDokumenFinal();
         };
     }
 
@@ -2034,12 +2250,37 @@
         }
 
         panel.style.display = "block";
-        wadah.innerHTML = `<div class="text-center py-3"><span class="spinner-border spinner-border-sm text-success me-2"></span> Memuat status 5 Paket soal ${wil} (${mapel})...</div>`;
+        wadah.innerHTML = `<div class="text-center py-3"><span class="spinner-border spinner-border-sm text-success me-2"></span> Memuat status 5 Paket soal (${wil === 'SEMUA' ? 'Gabungan 5 Wilayah' : wil} - ${mapel})...</div>`;
 
-        fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(wil)}&kecamatan=${encodeURIComponent(kec)}&mapel=${encodeURIComponent(mapel)}`)
-        .then(r => r.json())
-        .then(res => {
-            const dataRadar = res.data || res || {};
+        const daftarWil = (wil === "SEMUA") ? Object.keys(dataSurabaya) : [wil];
+        Promise.all(
+            daftarWil.map(w =>
+                fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(w)}&kecamatan=${encodeURIComponent(wil === 'SEMUA' ? 'SEMUA' : kec)}&mapel=${encodeURIComponent(mapel)}`)
+                .then(r => r.json())
+                .then(res => ({ wilayah: w, data: res.data || res || {} }))
+                .catch(() => ({ wilayah: w, data: {} }))
+            )
+        )
+        .then(results => {
+            const dataRadar = {};
+            DAFTAR_PAKET.forEach(pkt => { dataRadar[pkt] = {}; });
+
+            results.forEach(itemWil => {
+                const namaW = itemWil.wilayah;
+                const dWil = itemWil.data || {};
+                DAFTAR_PAKET.forEach(pkt => {
+                    const dPkt = dWil[pkt] || {};
+                    for (let no = 1; no <= 30; no++) {
+                        const item = dPkt[no] || dPkt[String(no)];
+                        if (item && item.status) {
+                            dataRadar[pkt][no] = Object.assign({}, item, {
+                                wilayah: item.wilayah || namaW
+                            });
+                        }
+                    }
+                });
+            });
+
             penulis_dataStatusSemuaPaket = dataRadar;
             let html = "";
 
@@ -2060,7 +2301,7 @@
                         else if (st.includes("pink") || st.includes("pengawas")) cls = "bg-pink";
                         else if (st.includes("resubmitted") || st.includes("ulang")) cls = "bg-purple";
                         else cls = "bg-menunggu";
-                        tip = `No. ${no} - ${item.penulis || 'Penulis'} (${item.status})`;
+                        tip = `No. ${no} - ${item.penulis || 'Penulis'} (${item.wilayah || wil} | ${item.status})`;
                     }
                     html += `<span class="badge-radar ${cls}" title="${tip}" onclick="penelaah_bukaSoalSingle('${pkt}', ${no})">${no}</span>`;
                 }
@@ -2073,19 +2314,27 @@
         });
     }
 
-    // FITUR BARU PENELAAH: Buka Soal Individual + Langsung Bisa Edit Opsi Jawaban & Kunci Jawaban
     function penelaah_bukaSoalSingle(paket, no) {
-        const wil = document.getElementById("penelaah_wilayah").value;
-        const kec = document.getElementById("penelaah_kecamatan").value;
+        const wilFilter = document.getElementById("penelaah_wilayah").value;
+        const kecFilter = document.getElementById("penelaah_kecamatan").value;
         const mapel = document.getElementById("penelaah_mapel").value;
         document.getElementById("penelaah_paket").value = paket;
+
+        // Ambil wilayah asal soal dari radar gabungan jika Penelaah memilih SEMUA WILAYAH
+        const infoRadar = (penulis_dataStatusSemuaPaket[paket] || {})[no] || {};
+        const wilTarget = (wilFilter === "SEMUA") ? (infoRadar.wilayah || "") : wilFilter;
+        const kecTarget = (wilFilter === "SEMUA") ? (infoRadar.kecamatan || "SEMUA") : kecFilter;
+
+        if (!wilTarget) {
+            return alert(`Soal Nomor ${no} pada ${paket} belum dibuat oleh penulis.`);
+        }
 
         const loader = document.getElementById("penelaah_loader");
         const box = document.getElementById("penelaah_boxPenilaian");
         loader.style.display = "block";
         box.style.display = "none";
 
-        fetch(`${scriptURL}?action=tarik_soal_penelaah&wilayah=${encodeURIComponent(wil)}&kecamatan=${encodeURIComponent(kec)}&mapel=${encodeURIComponent(mapel)}&paket=${encodeURIComponent(paket)}&nomorSoal=${encodeURIComponent(no)}`)
+        fetch(`${scriptURL}?action=tarik_soal_penelaah&wilayah=${encodeURIComponent(wilTarget)}&kecamatan=${encodeURIComponent(kecTarget)}&mapel=${encodeURIComponent(mapel)}&paket=${encodeURIComponent(paket)}&nomorSoal=${encodeURIComponent(no)}`)
         .then(r => r.json())
         .then(res => {
             loader.style.display = "none";
@@ -2094,14 +2343,15 @@
             }
 
             const d = res.data;
+            d.wilayah = d.wilayah || wilTarget;
             penelaah_cacheSoalPaket[no] = d;
 
             box.style.display = "block";
             document.getElementById("penelaah_lblPenilaianNo").innerText = no;
-            document.getElementById("penelaah_lblPenilaianPaket").innerText = paket;
+            document.getElementById("penelaah_lblPenilaianPaket").innerText = `${paket} - ${d.wilayah}`;
             document.getElementById("penelaah_valNoSoal").value = no;
             document.getElementById("penelaah_valPaketPenilaian").value = paket;
-            document.getElementById("penelaah_valAsalKecamatan").value = d.kecamatan || kec;
+            document.getElementById("penelaah_valAsalKecamatan").value = d.kecamatan || kecTarget;
             document.getElementById("penelaah_valStatus").value = d.status === "Edited" || d.status === "Rejected" ? d.status : "Approved";
             document.getElementById("penelaah_valCatatan").value = d.catatanPenelaah || "";
 
@@ -2110,6 +2360,7 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-3 rounded-3 border mb-3">
                     <div>
                         <span class="badge bg-primary me-2">${d.bentukSoal || 'Pilihan Ganda'}</span>
+                        <span class="badge bg-info text-dark me-2">${d.wilayah || wilTarget}</span>
                         <span class="fw-bold text-dark"><i class="bi bi-person-fill"></i> Penulis: ${d.penulis || '-'} (${d.kecamatan || '-'})</span>
                     </div>
                     <button type="button" class="btn btn-sm btn-dark fw-bold rounded-pill px-3" onclick="bukaModalEditGlobal(${no}, 'PENELAAH')">
@@ -2225,11 +2476,13 @@
     }
 
     function penelaah_kirimPenilaianSingle() {
-        const wil = document.getElementById("penelaah_wilayah").value;
+        const no = document.getElementById("penelaah_valNoSoal").value;
+        const paket = document.getElementById("penelaah_valPaketPenilaian").value;
+        const dCache = penelaah_cacheSoalPaket[no] || {};
+        const wilFilter = document.getElementById("penelaah_wilayah").value;
+        const wil = dCache.wilayah || (penulis_dataStatusSemuaPaket[paket]?.[no]?.wilayah) || wilFilter;
         const kec = document.getElementById("penelaah_valAsalKecamatan").value || document.getElementById("penelaah_kecamatan").value;
         const mapel = document.getElementById("penelaah_mapel").value;
-        const paket = document.getElementById("penelaah_valPaketPenilaian").value;
-        const no = document.getElementById("penelaah_valNoSoal").value;
         const status = document.getElementById("penelaah_valStatus").value;
         const catatan = document.getElementById("penelaah_valCatatan").value;
         const namaPenelaah = document.getElementById("penelaah_namaPenelaah").value || document.getElementById("lblUserAktif").innerText;
@@ -2272,7 +2525,7 @@
         .then(() => {
             btn.disabled = false;
             btn.innerHTML = teksAsli;
-            alert(`✅ Tersimpan!\nSoal No. ${no} (${paket}) beserta perubahan Jawaban, Kunci Jawaban & Status (${status}) telah masuk ke Database.`);
+            alert(`✅ Tersimpan!\nSoal No. ${no} (${paket} - ${wil}) beserta perubahan Jawaban, Kunci Jawaban & Status (${status}) telah masuk ke Database.`);
             document.getElementById("penelaah_boxPenilaian").style.display = "none";
             penelaah_muatDashboardRadar();
         })
@@ -2298,12 +2551,19 @@
         loader.style.display = "block";
         area.style.display = "none";
 
-        fetch(`${scriptURL}?action=tarik_paket_lengkap&wilayah=${encodeURIComponent(wil)}&kecamatan=${encodeURIComponent(kec)}&mapel=${encodeURIComponent(mapel)}&paket=${encodeURIComponent(paket)}`)
-        .then(r => r.json())
-        .then(res => {
+        const daftarWil = (wil === "SEMUA") ? Object.keys(dataSurabaya) : [wil];
+        Promise.all(
+            daftarWil.map(w =>
+                fetch(`${scriptURL}?action=tarik_paket_lengkap&wilayah=${encodeURIComponent(w)}&kecamatan=${encodeURIComponent(wil === 'SEMUA' ? 'SEMUA' : kec)}&mapel=${encodeURIComponent(mapel)}&paket=${encodeURIComponent(paket)}`)
+                .then(r => r.json())
+                .then(res => (res.data || []).map(item => Object.assign({}, item, { wilayah: item.wilayah || w })))
+                .catch(() => [])
+            )
+        )
+        .then(results => {
             loader.style.display = "none";
             area.style.display = "block";
-            const list = res.data || [];
+            const list = results.flat().sort((a, b) => Number(a.nomorSoal) - Number(b.nomorSoal));
             penelaah_cacheSoalPaket = {};
 
             if (list.length === 0) {
@@ -2311,7 +2571,7 @@
                 return;
             }
 
-            let html = `<h5 class="fw-bold text-primary mb-3"><i class="bi bi-collection-fill"></i> Daftar Lengkap ${paket} - ${wil} (${mapel})</h5>`;
+            let html = `<h5 class="fw-bold text-primary mb-3"><i class="bi bi-collection-fill"></i> Daftar Lengkap ${paket} - ${wil === 'SEMUA' ? 'Gabungan 5 Wilayah' : wil} (${mapel})</h5>`;
             list.forEach(item => {
                 penelaah_cacheSoalPaket[item.nomorSoal] = item;
                 html += renderKartuSoalGlobal(item, "PENELAAH");
@@ -2364,46 +2624,6 @@
         new bootstrap.Modal(document.getElementById("modalRekap")).show();
     }
 
-    function penelaah_rakitDokumenFinal() {
-        const wil = document.getElementById("penelaah_wilayah").value;
-        const kec = document.getElementById("penelaah_kecamatan").value;
-        const mapel = document.getElementById("penelaah_mapel").value;
-        const paket = document.getElementById("penelaah_paket").value;
-
-        if (!wil || !mapel || !paket) return alert("Pilih Wilayah, Mapel, dan Paket terlebih dahulu!");
-
-        const btn = document.getElementById("penelaah_btnTampilkan");
-        const asli = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> MERAKIT GOOGLE DOCS...`;
-
-        fetch(scriptURL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "rakit_google_docs",
-                wilayah: wil,
-                kecamatan: kec,
-                mapel: mapel,
-                paket: paket
-            })
-        })
-        .then(r => r.json())
-        .then(res => {
-            btn.disabled = false;
-            btn.innerHTML = asli;
-            if (res.url || res.docUrl) {
-                window.open(res.url || res.docUrl, "_blank");
-            } else {
-                alert("Dokumen berhasil diproses: " + (res.message || "Silakan cek Google Drive Anda."));
-            }
-        })
-        .catch(err => {
-            btn.disabled = false;
-            btn.innerHTML = asli;
-            alert("Gagal merakit dokumen: " + err.message);
-        });
-    }
-
     // =========================================================================
     // 8. LOGIKA PORTAL 3: PENGAWAS SOAL (5 PAKET, LIVE EDIT & KUNCI PAKET)
     // =========================================================================
@@ -2430,74 +2650,94 @@
     }
 
     function pengawas_setMapel(btn, mapel) {
-        document.querySelectorAll(".pengawas-btn-mapel").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        pengawas_mapelAktif = mapel;
+     document.querySelectorAll(".pengawas-btn-mapel").forEach(b => b.classList.remove("active"));
+     btn.classList.add("active");
+     pengawas_mapelAktif = mapel;
 
-        // Aktifkan 5 tombol paket & cek warna statusnya
-        [1, 2, 3, 4, 5].forEach(i => {
-            const bp = document.getElementById("pengawas_btnPaket" + i);
-            bp.disabled = false;
-            bp.style.backgroundColor = "#3b82f6";
-        });
+     [1, 2, 3, 4, 5].forEach(i => {
+         const bp = document.getElementById("pengawas_btnPaket" + i);
+         bp.disabled = false;
+         bp.style.backgroundColor = "#3b82f6";
+     });
 
-        fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(pengawas_wilayahAktif)}&kecamatan=SEMUA&mapel=${encodeURIComponent(pengawas_mapelAktif)}`)
-        .then(r => r.json())
-        .then(res => {
-            const data = res.data || res || {};
-            [1, 2, 3, 4, 5].forEach(i => {
-                const pktName = "Paket " + i;
-                const dPkt = data[pktName] || {};
-                const bp = document.getElementById("pengawas_btnPaket" + i);
-                const keys = Object.keys(dPkt);
-                let warna = "#f59e0b"; // Kuning (Belum Lengkap)
-                if (keys.length >= 30) warna = "#10b981"; // Hijau (Lengkap)
-                for (let k of keys) {
-                    const st = String(dPkt[k]?.status || "").toLowerCase();
-                    if (st.includes("edited") || st.includes("rejected")) { warna = "#ef4444"; break; }
-                    if (st.includes("pink")) { warna = "#ec4899"; break; }
-                }
-                bp.style.backgroundColor = warna;
-            });
-        })
-        .catch(() => {});
-    }
+     const daftarWil = (pengawas_wilayahAktif === "SEMUA") ? Object.keys(dataSurabaya) : [pengawas_wilayahAktif];
+     Promise.all(
+         daftarWil.map(w =>
+             fetch(`${scriptURL}?action=cek_radar_wilayah&wilayah=${encodeURIComponent(w)}&kecamatan=SEMUA&mapel=${encodeURIComponent(pengawas_mapelAktif)}`)
+             .then(r => r.json())
+             .then(res => res.data || res || {})
+             .catch(() => ({}))
+         )
+     )
+     .then(results => {
+         const data = {};
+         DAFTAR_PAKET.forEach(pkt => { data[pkt] = {}; });
+         results.forEach(dWil => {
+             DAFTAR_PAKET.forEach(pkt => {
+                 Object.assign(data[pkt], dWil[pkt] || {});
+             });
+         });
 
-    function pengawas_tarikPaket(namaPaket) {
-        pengawas_paketAktif = namaPaket;
-        const loader = document.getElementById("pengawas_loader");
-        const area = document.getElementById("pengawas_areaPaket");
-        const wadah = document.getElementById("pengawas_wadahListSoal");
+         [1, 2, 3, 4, 5].forEach(i => {
+             const pktName = "Paket " + i;
+             const dPkt = data[pktName] || {};
+             const bp = document.getElementById("pengawas_btnPaket" + i);
+             const keys = Object.keys(dPkt);
+             let warna = "#f59e0b"; // Kuning (Belum Lengkap)
+             if (keys.length >= 30) warna = "#10b981"; // Hijau (Lengkap 30 Soal)
+             for (let k of keys) {
+                 const st = String(dPkt[k]?.status || "").toLowerCase();
+                 if (st.includes("edited") || st.includes("rejected")) { warna = "#ef4444"; break; }
+                 if (st.includes("pink")) { warna = "#ec4899"; break; }
+             }
+             bp.style.backgroundColor = warna;
+         });
+     })
+     .catch(() => {});
+ }
 
-        loader.style.display = "block";
-        area.style.display = "none";
+ function pengawas_tarikPaket(namaPaket) {
+     pengawas_paketAktif = namaPaket;
+     const loader = document.getElementById("pengawas_loader");
+     const area = document.getElementById("pengawas_areaPaket");
+     const wadah = document.getElementById("pengawas_wadahListSoal");
 
-        fetch(`${scriptURL}?action=tarik_paket_lengkap&wilayah=${encodeURIComponent(pengawas_wilayahAktif)}&kecamatan=SEMUA&mapel=${encodeURIComponent(pengawas_mapelAktif)}&paket=${encodeURIComponent(namaPaket)}`)
-        .then(r => r.json())
-        .then(res => {
-            loader.style.display = "none";
-            area.style.display = "block";
-            document.getElementById("pengawas_txtInfoPaket").innerText = `${pengawas_wilayahAktif} - ${pengawas_mapelAktif} (${namaPaket})`;
+     loader.style.display = "block";
+     area.style.display = "none";
 
-            const list = res.data || [];
-            pengawas_cacheSoal = {};
-            if (list.length === 0) {
-                wadah.innerHTML = `<div class="glass-card p-4 text-center text-muted">Belum ada soal pada ${namaPaket}.</div>`;
-                return;
-            }
+     const daftarWil = (pengawas_wilayahAktif === "SEMUA") ? Object.keys(dataSurabaya) : [pengawas_wilayahAktif];
+     Promise.all(
+         daftarWil.map(w =>
+             fetch(`${scriptURL}?action=tarik_paket_lengkap&wilayah=${encodeURIComponent(w)}&kecamatan=SEMUA&mapel=${encodeURIComponent(pengawas_mapelAktif)}&paket=${encodeURIComponent(namaPaket)}`)
+             .then(r => r.json())
+             .then(res => (res.data || []).map(item => Object.assign({}, item, { wilayah: item.wilayah || w })))
+             .catch(() => [])
+         )
+     )
+     .then(results => {
+         loader.style.display = "none";
+         area.style.display = "block";
+         document.getElementById("pengawas_txtInfoPaket").innerText = `${pengawas_wilayahAktif === 'SEMUA' ? 'Gabungan 5 Wilayah' : pengawas_wilayahAktif} - ${pengawas_mapelAktif} (${namaPaket})`;
 
-            let html = "";
-            list.forEach(item => {
-                pengawas_cacheSoal[item.nomorSoal] = item;
-                html += renderKartuSoalGlobal(item, "PENGAWAS");
-            });
-            wadah.innerHTML = html;
-        })
-        .catch(err => {
-            loader.style.display = "none";
-            alert("Gagal menarik paket soal: " + err.message);
-        });
-    }
+         const list = results.flat().sort((a, b) => Number(a.nomorSoal) - Number(b.nomorSoal));
+         pengawas_cacheSoal = {};
+         if (list.length === 0) {
+             wadah.innerHTML = `<div class="glass-card p-4 text-center text-muted">Belum ada soal pada ${namaPaket}.</div>`;
+             return;
+         }
+
+         let html = "";
+         list.forEach(item => {
+             pengawas_cacheSoal[item.nomorSoal] = item;
+             html += renderKartuSoalGlobal(item, "PENGAWAS");
+         });
+         wadah.innerHTML = html;
+     })
+     .catch(err => {
+         loader.style.display = "none";
+         alert("Gagal menarik paket soal: " + err.message);
+     });
+ }
 
     function pengawas_kunciPaket() {
         if (!confirm(`Kunci seluruh soal pada ${pengawas_paketAktif} (${pengawas_wilayahAktif} - ${pengawas_mapelAktif})?`)) return;
@@ -2630,7 +2870,7 @@
         const sumberCache = modePortal === "PENGAWAS" ? pengawas_cacheSoal : penelaah_cacheSoalPaket;
         const dAsli = sumberCache[noSoal] || {};
 
-        const wil = modePortal === "PENGAWAS" ? pengawas_wilayahAktif : document.getElementById("penelaah_wilayah").value;
+        const wil = dAsli.wilayah || (modePortal === "PENGAWAS" ? pengawas_wilayahAktif : document.getElementById("penelaah_wilayah").value);
         const mapel = modePortal === "PENGAWAS" ? pengawas_mapelAktif : document.getElementById("penelaah_mapel").value;
         const paket = modePortal === "PENGAWAS" ? pengawas_paketAktif : document.getElementById("penelaah_paket").value;
 
@@ -2698,7 +2938,7 @@
         const selKec = document.getElementById("pencetak_kecamatan");
         const selMapel = document.getElementById("pencetak_mapel");
 
-        selWil.innerHTML = '<option value="">-- Pilih Wilayah --</option>';
+        selWil.innerHTML = '<option value="">-- Pilih Wilayah --</option><option value="SEMUA">🌐 SEMUA WILAYAH (1 Paket Utuh 5 Wilayah)</option>';
         Object.keys(dataSurabaya).forEach(w => {
             selWil.innerHTML += `<option value="${w}">${w}</option>`;
         });
@@ -2709,11 +2949,15 @@
             selMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
             selKec.disabled = !w;
             selMapel.disabled = true;
-            if (w && dataSurabaya[w]) {
-                Object.keys(dataSurabaya[w]).forEach(k => {
-                    selKec.innerHTML += `<option value="${k}">${k}</option>`;
-                });
-            }
+            if (w === "SEMUA") {
+             selKec.value = "SEMUA";
+             selMapel.disabled = false;
+             selMapel.innerHTML = '<option value="">-- Pilih Mapel --</option><option value="Bahasa Indonesia">Bahasa Indonesia</option><option value="Matematika">Matematika</option>';
+         } else if (w && dataSurabaya[w]) {
+             Object.keys(dataSurabaya[w]).forEach(k => {
+                 selKec.innerHTML += `<option value="${k}">${k}</option>`;
+             });
+         }
         };
 
         selKec.onchange = function() {
