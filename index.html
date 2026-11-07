@@ -497,9 +497,12 @@
         </div>
         
         <div class="mb-3">
-            <label>Kompetensi / Sub Kompetensi</label>
-            <textarea id="penulis_kompetensi" class="form-control" rows="3"></textarea>
+            <label>Kompetensi / Sub Kompetensi (Pilih dari Daftar)</label>
+            <select id="penulis_kompetensi" class="form-select" onchange="penulis_saatPilihKompetensi()">
+                <option value="">-- Pilih Kompetensi / Sub Kompetensi --</option>
+            </select>
         </div>
+		
         <div class="mb-2">
             <label>Indikator Soal</label>
             <textarea id="penulis_indikator" class="form-control" rows="2"></textarea>
@@ -1006,6 +1009,9 @@
     let dataPenulis = {};
     let dataKompetensi = { "Bahasa Indonesia": {}, "Matematika": {} };
     let dataIndikator = { "Bahasa Indonesia": {}, "Matematika": {} };
+	let daftarKompetensiDropdown = { "Bahasa Indonesia": [], "Matematika": [] };
+    let mapIndikatorKompetensi = { "Bahasa Indonesia": {}, "Matematika": {} };
+    let mapNomorKompetensi = { "Bahasa Indonesia": {}, "Matematika": {} };
     let dataPenelaahWilayah = {
         "Surabaya Barat": [],
         "Surabaya Pusat": [],
@@ -1056,6 +1062,9 @@
         if (d.dataPengawas !== undefined) dataPengawasList = d.dataPengawas;
         if (d.dataPencetak !== undefined) dataPencetakList = d.dataPencetak;
         if (d.mappingPenulis !== undefined) dataMappingPenulis = d.mappingPenulis;
+		if (d.daftarKompetensi !== undefined) daftarKompetensiDropdown = d.daftarKompetensi;
+        if (d.mapIndikatorKompetensi !== undefined) mapIndikatorKompetensi = d.mapIndikatorKompetensi;
+        if (d.mapNomorKompetensi !== undefined) mapNomorKompetensi = d.mapNomorKompetensi;
     }
 
     // =========================================================================
@@ -1684,6 +1693,41 @@
         penulis_isiOtomatisKompetensi();
     }
 
+    function penulis_renderOpsiDropdownKompetensi() {
+        const mapel = document.getElementById("penulis_mapel").value;
+        const elKomp = document.getElementById("penulis_kompetensi");
+        if (!elKomp) return;
+
+        const nilaiSekarang = elKomp.value;
+        let opsiKompetensi = [];
+
+        if (mapel && Array.isArray(daftarKompetensiDropdown[mapel])) {
+            opsiKompetensi.push(...daftarKompetensiDropdown[mapel]);
+        }
+        if (mapel && dataKompetensi[mapel] && typeof dataKompetensi[mapel] === "object") {
+            Object.keys(dataKompetensi[mapel])
+                .sort((a, b) => Number(a) - Number(b))
+                .forEach(no => {
+                    const val = dataKompetensi[mapel][no];
+                    if (val && typeof val === "string") opsiKompetensi.push(val.trim());
+                });
+        }
+        opsiKompetensi = [...new Set(opsiKompetensi.filter(Boolean))];
+
+        elKomp.innerHTML = '<option value="">-- Pilih Kompetensi / Sub Kompetensi --</option>';
+        opsiKompetensi.forEach(komp => {
+            const opt = document.createElement("option");
+            opt.value = komp;
+            opt.textContent = komp;
+            elKomp.appendChild(opt);
+        });
+
+        if (nilaiSekarang && [...elKomp.options].some(o => o.value === nilaiSekarang)) {
+            elKomp.value = nilaiSekarang;
+        }
+    }
+
+    // ARAH 1: Saat Nomor Soal dipilih -> Kompetensi & Indikator otomatis menyesuaikan
     function penulis_isiOtomatisKompetensi() {
         const mapel = document.getElementById("penulis_mapel").value;
         const nama = document.getElementById("penulis_nama").value;
@@ -1692,29 +1736,92 @@
         const elKomp = document.getElementById("penulis_kompetensi");
         const elInd = document.getElementById("penulis_indikator");
 
+        if (!elKomp) return;
+        penulis_renderOpsiDropdownKompetensi();
         if (!mapel || !no) return;
 
-        // Mendukung pembacaan kisi-kisi per Paket_Nomor maupun per Nomor lintas Paket 1 - 5
         const keyMap = `${nama}_${mapel}`;
         const mapData = dataMappingPenulis[keyMap] || dataMappingPenulis[nama];
+        let kompTarget = "";
 
         if (mapData && mapData.kompetensi && (mapData.kompetensi[`${paket}_${no}`] || mapData.kompetensi[no])) {
-            elKomp.value = mapData.kompetensi[`${paket}_${no}`] || mapData.kompetensi[no];
+            kompTarget = mapData.kompetensi[`${paket}_${no}`] || mapData.kompetensi[no];
         } else if (dataKompetensi[mapel] && (dataKompetensi[mapel][`${paket}_${no}`] || dataKompetensi[mapel][no])) {
-            elKomp.value = dataKompetensi[mapel][`${paket}_${no}`] || dataKompetensi[mapel][no];
-        } else {
-            elKomp.value = "";
+            kompTarget = dataKompetensi[mapel][`${paket}_${no}`] || dataKompetensi[mapel][no];
         }
 
+        if (kompTarget) {
+            if (![...elKomp.options].some(o => o.value === kompTarget)) {
+                const opt = document.createElement("option");
+                opt.value = kompTarget;
+                opt.textContent = kompTarget;
+                elKomp.appendChild(opt);
+            }
+            elKomp.value = kompTarget;
+        }
+
+        // Isi otomatis Indikator sesuai Nomor Soal atau Kompetensi
         if (mapData && mapData.indikator && (mapData.indikator[`${paket}_${no}`] || mapData.indikator[no])) {
             elInd.value = mapData.indikator[`${paket}_${no}`] || mapData.indikator[no];
         } else if (dataIndikator[mapel] && (dataIndikator[mapel][`${paket}_${no}`] || dataIndikator[mapel][no])) {
             elInd.value = dataIndikator[mapel][`${paket}_${no}`] || dataIndikator[mapel][no];
-        } else {
-            elInd.value = "";
+        } else if (elKomp.value && mapIndikatorKompetensi[mapel]?.[elKomp.value]) {
+            elInd.value = mapIndikatorKompetensi[mapel][elKomp.value];
         }
     }
 
+    // ARAH 2: Saat Kompetensi dipilih -> Nomor Soal & Indikator otomatis menyesuaikan
+    function penulis_saatPilihKompetensi() {
+        const mapel = document.getElementById("penulis_mapel").value;
+        const komp = document.getElementById("penulis_kompetensi").value;
+        const selNo = document.getElementById("penulis_nomorSoal");
+        const elInd = document.getElementById("penulis_indikator");
+
+        if (!mapel || !komp) return;
+
+        // Cari semua Nomor Soal yang terhubung dengan Kompetensi yang dipilih
+        let kandidatNomor = (mapNomorKompetensi[mapel] && mapNomorKompetensi[mapel][komp]) ? [...mapNomorKompetensi[mapel][komp]] : [];
+        if (kandidatNomor.length === 0 && dataKompetensi[mapel]) {
+            for (let k in dataKompetensi[mapel]) {
+                if (dataKompetensi[mapel][k] === komp && !isNaN(Number(k))) {
+                    kandidatNomor.push(Number(k));
+                }
+            }
+        }
+        kandidatNomor = [...new Set(kandidatNomor)].sort((a, b) => a - b);
+
+        if (kandidatNomor.length > 0 && selNo) {
+            const noSekarang = Number(selNo.value);
+            // Jika nomor soal saat ini belum sesuai dengan kompetensi yang dipilih, pindahkan nomor soalnya!
+            if (!kandidatNomor.includes(noSekarang)) {
+                // Prioritaskan nomor yang tidak terkunci (belum diklaim penulis lain) pada paket aktif
+                let nomorTujuan = kandidatNomor.find(n => {
+                    const opt = selNo.querySelector(`option[value="${n}"]`);
+                    return opt && !opt.disabled;
+                });
+                if (!nomorTujuan) nomorTujuan = kandidatNomor[0];
+
+                const optTujuan = selNo.querySelector(`option[value="${nomorTujuan}"]`);
+                if (optTujuan && optTujuan.disabled) {
+                    alert(`⚠️ Perhatian: Nomor Soal ${nomorTujuan} untuk kompetensi ini pada paket aktif sudah diklaim penulis lain. Silakan ganti ke Paket lain (Paket 1 - 5) jika ingin menulis kompetensi ini.`);
+                } else {
+                    selNo.value = String(nomorTujuan);
+                }
+            }
+        }
+
+        // Update Indikator sesuai Nomor Soal aktif atau Kompetensi
+        const noAktif = selNo ? selNo.value : "";
+        if (noAktif && dataIndikator[mapel] && dataIndikator[mapel][noAktif]) {
+            elInd.value = dataIndikator[mapel][noAktif];
+        } else if (mapIndikatorKompetensi[mapel] && mapIndikatorKompetensi[mapel][komp]) {
+            elInd.value = mapIndikatorKompetensi[mapel][komp];
+        }
+
+        penulis_simpanDraftLokal();
+    }
+	
+	
     function penulis_renderEditorSoal() {
         const bentuk = document.getElementById("penulis_bentukSoal").value;
         const mapel = document.getElementById("penulis_mapel").value;
@@ -1922,7 +2029,17 @@
             document.getElementById("penulis_bentukSoal").value = d.bentukSoal || "Pilihan Ganda";
             penulis_renderEditorSoal();
 
-            document.getElementById("penulis_kompetensi").value = d.kompetensi || document.getElementById("penulis_kompetensi").value;
+            const selKomp = document.getElementById("penulis_kompetensi");
+         penulis_isiOtomatisKompetensi();
+         if (d.kompetensi) {
+             if (![...selKomp.options].some(o => o.value === d.kompetensi)) {
+                 const optBaru = document.createElement("option");
+                 optBaru.value = d.kompetensi;
+                 optBaru.textContent = d.kompetensi;
+                 selKomp.appendChild(optBaru);
+             }
+             selKomp.value = d.kompetensi;
+         }
             document.getElementById("penulis_indikator").value = d.indikator || document.getElementById("penulis_indikator").value;
 
             if (quillEditors["penulis_tanya"]) quillEditors["penulis_tanya"].root.innerHTML = d.pertanyaan || "";
@@ -2011,6 +2128,9 @@
         if (!wil || !kec || !mapel || !nama || !bentuk || !paket || !no) {
             return alert("Mohon lengkapi seluruh identitas dan spesifikasi soal sebelum menyimpan!");
         }
+		if (!komp) {
+         return alert("Mohon pilih Kompetensi / Sub Kompetensi pada dropdown terlebih dahulu!");
+     }
 
 // Proteksi Lintas 5 Wilayah: Cegah menimpa nomor soal di paket yang sudah diklaim penulis wilayah lain
         const infoKlaim = (penulis_dataStatusSemuaPaket[paket] || {})[no];
